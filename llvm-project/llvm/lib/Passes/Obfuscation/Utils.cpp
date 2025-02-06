@@ -164,6 +164,20 @@ bool llvm::toObfuscate(bool flag, Function *f,
   return false;
 }
 
+// Fix use of undeclared identifier 'valueEscapes'
+static bool valueEscapes(const Instruction &Inst) {
+  if (!Inst.getType()->isSized())
+    return false;
+
+  const BasicBlock *BB = Inst.getParent();
+  for (const User *U : Inst.users()) {
+    const Instruction *UI = cast<Instruction>(U);
+    if (UI->getParent() != BB || isa<PHINode>(UI))
+      return true;
+  }
+  return false;
+}
+
 /** LLVM\llvm\lib\Transforms\Scalar\Reg2Mem.cpp
  * @brief 修复PHI指令和逃逸变量
  *
