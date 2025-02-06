@@ -229,7 +229,8 @@ namespace llvm
             Call->eraseFromParent();
         }
 
-        NF->getBasicBlockList().splice(NF->begin(), F->getBasicBlockList());
+        // NF->getBasicBlockList().splice(NF->begin(), F->getBasicBlockList());
+        NF->splice(NF->begin(), F); // Fix 'getBasicBlockList' is a private member of 'llvm::Function'
 
         // Loop over the argument list, transferring uses of the old arguments over to
         // the new arguments, also transferring over the names as well.
