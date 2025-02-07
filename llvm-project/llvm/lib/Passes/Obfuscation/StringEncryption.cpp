@@ -168,7 +168,7 @@ Function *StringEncryptionPass::buildDecryptFunction(
     LLVMContext &Ctx = M->getContext();
     IRBuilder<> IRB(Ctx);
     FunctionType *FuncTy = FunctionType::get(
-        Type::getVoidTy(Ctx), {IRB.getInt8PtrTy(), IRB.getInt8PtrTy()}, false);
+        Type::getVoidTy(Ctx), {IRB.getPtrTy(), IRB.getPtrTy()}, false);
     Function *DecFunc = Function::Create(
         FuncTy, GlobalValue::PrivateLinkage,
         "goron_decrypt_string_" + Twine::utohexstr(Entry->ID), M);
@@ -362,8 +362,7 @@ bool StringEncryptionPass::processConstantStringUse(Function *F) {
                                 PHI->getIncomingBlock(i)->getTerminator();
                             IRBuilder<> IRB(InsertPoint);
 
-                            Value *OutBuf = IRB.CreateBitCast(
-                                Entry->DecGV, IRB.getInt8PtrTy());
+                            Value *OutBuf = IRB.CreateBitCast(Entry->DecGV, IRB.getPtrTy());
                             Value *Data = IRB.CreateInBoundsGEP(
                                 EncryptedStringTable->getValueType(),
                                 EncryptedStringTable,
@@ -403,8 +402,7 @@ bool StringEncryptionPass::processConstantStringUse(Function *F) {
                         } else {
                             IRBuilder<> IRB(&Inst);
 
-                            Value *OutBuf = IRB.CreateBitCast(
-                                Entry->DecGV, IRB.getInt8PtrTy());
+                            Value *OutBuf = IRB.CreateBitCast(Entry->DecGV, IRB.getPtrTy());
                             Value *Data = IRB.CreateInBoundsGEP(
                                 EncryptedStringTable->getValueType(),
                                 EncryptedStringTable,
