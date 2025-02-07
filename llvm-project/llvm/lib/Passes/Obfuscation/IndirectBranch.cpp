@@ -131,15 +131,21 @@ GlobalVariable *IndirectBranchPass::getIndirectTargets(Function &F, ConstantInt 
   // encrypt branch targets
   std::vector<Constant *> Elements;
   for (const auto BB : BBTargets) {
+    // Constant *CE = ConstantExpr::getBitCast(BlockAddress::get(BB),
+    //                                         Type::getInt8PtrTy(F.getContext()));
+    // For llvm18, fix no member named 'getInt8PtrTy' in 'llvm::Type'
     Constant *CE = ConstantExpr::getBitCast(BlockAddress::get(BB),
-                                            Type::getInt8PtrTy(F.getContext()));
+                                            llvm::PointerType::get(Type::getInt8Ty(F.getContext()), 0));
     CE = ConstantExpr::getGetElementPtr(Type::getInt8Ty(F.getContext()), CE,
                                         EncKey);
     Elements.push_back(CE);
   }
 
+  // ArrayType *ATy =
+      // ArrayType::get(Type::getInt8PtrTy(F.getContext()), Elements.size());
+  // For llvm18, fix no member named 'getInt8PtrTy' in 'llvm::Type'
   ArrayType *ATy =
-      ArrayType::get(Type::getInt8PtrTy(F.getContext()), Elements.size());
+      ArrayType::get(llvm::PointerType::get(Type::getInt8Ty(F.getContext()), 0), Elements.size());
   Constant *CA = ConstantArray::get(ATy, ArrayRef<Constant *>(Elements));
   GV =
       new GlobalVariable(*F.getParent(), ATy, false,
