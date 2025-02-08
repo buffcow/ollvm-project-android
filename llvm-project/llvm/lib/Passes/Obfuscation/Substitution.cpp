@@ -131,7 +131,7 @@ void SubstitutionPass::addNeg(BinaryOperator *bo) {
 
   // Create sub
   if (bo->getOpcode() == Instruction::Add) {
-    op = BinaryOperator::CreateNeg(bo->getOperand(1), "", bo);
+    op = BinaryOperator::CreateNeg(bo->getOperand(1), "", bo->getIterator()); // Fix for llvm 19.0.0
     op =
         BinaryOperator::Create(Instruction::Sub, bo->getOperand(0), op, "", bo);
 
@@ -152,10 +152,11 @@ void SubstitutionPass::addDoubleNeg(BinaryOperator *bo) {
   BinaryOperator *op, *op2 = NULL; 
   UnaryOperator *op3, *op4; 
   if (bo->getOpcode() == Instruction::Add) { 
-    op = BinaryOperator::CreateNeg(bo->getOperand(0), "", bo); 
-    op2 = BinaryOperator::CreateNeg(bo->getOperand(1), "", bo); 
+    BasicBlock::iterator insertPos = bo->getIterator(); // Fix for llvm 19.0.0
+    op = BinaryOperator::CreateNeg(bo->getOperand(0), "", insertPos); 
+    op2 = BinaryOperator::CreateNeg(bo->getOperand(1), "", insertPos); 
     op = BinaryOperator::Create(Instruction::Add, op, op2, "", bo); 
-    op = BinaryOperator::CreateNeg(op, "", bo); 
+    op = BinaryOperator::CreateNeg(op, "", insertPos); 
     bo->replaceAllUsesWith(op); 
     // Check signed wrap 
     //op->setHasNoSignedWrap(bo->hasNoSignedWrap()); 
@@ -233,7 +234,7 @@ void SubstitutionPass::addRand2(BinaryOperator *bo) {
 void SubstitutionPass::subNeg(BinaryOperator *bo) { 
   BinaryOperator *op = NULL;   
   if (bo->getOpcode() == Instruction::Sub) { 
-    op = BinaryOperator::CreateNeg(bo->getOperand(1), "", bo); 
+    op = BinaryOperator::CreateNeg(bo->getOperand(1), "", bo->getIterator()); // Fix for llvm 19.0.0
     op = BinaryOperator::Create(Instruction::Add, bo->getOperand(0), op, "", bo); 
     // Check signed wrap 
     //op->setHasNoSignedWrap(bo->hasNoSignedWrap()); 

@@ -432,7 +432,8 @@ BasicBlock *createAlteredBasicBlock(BasicBlock *basicBlock, const Twine &Name,
           case 0:                                    // do nothing
             break;
           case 1:
-            op = BinaryOperator::CreateNeg(i->getOperand(0), *var, &*i);
+            // op = BinaryOperator::CreateNeg(i->getOperand(0), *var, &*i);
+            op = BinaryOperator::CreateNeg(i->getOperand(0), *var, i); // Fix for llvm 19.0.0
             op1 = BinaryOperator::Create(Instruction::Add, op, i->getOperand(1),
                                          "gen", &*i);
             break;
